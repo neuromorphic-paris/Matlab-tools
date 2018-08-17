@@ -39,7 +39,8 @@ x = 0;
 y = 0;
 t = 0;
 
-for i = 1:length(data)
+max = length(data);
+for i = 1:max
     if skiploop > 0
         skiploop = skiploop - 1;
         continue;
@@ -54,9 +55,9 @@ for i = 1:length(data)
         else
             overflow = overflow + helperbits;
         end
-    else 
+    else
         % skip events that encode grey levels
-        if bitand(data(i+2), thresholdmask) ~= thresholdmask
+        if i < (max -2) && bitand(data(i+2), thresholdmask) ~= thresholdmask
             t = t + bitand(data(i), tsmask) + overflow * 31;
             event_data.ts(index) = t;
             overflow = 0;
