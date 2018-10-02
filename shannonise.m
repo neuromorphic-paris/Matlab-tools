@@ -5,7 +5,7 @@ function events = shannonise(recording, scaleFactorTime)
 timeconst = 50000;
 arrayLength = floor((recording.ts(end)-recording.ts(1))/scaleFactorTime/scaleFactorTime);
 
-events.ts = zeros(1, arrayLength+1);
+events.ts = zeros(1, arrayLength);
 events.activityOn = zeros(1, arrayLength);
 events.activityOff = zeros(1, arrayLength);
 
