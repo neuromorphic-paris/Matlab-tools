@@ -1,11 +1,8 @@
 function events = shannonise(recording, scaleFactorTime)
-%DECAY Summary of this function goes here
-%   Detailed explanation goes here
-
 timeconst = 50000;
 arrayLength = floor((recording.ts(end)-recording.ts(1))/scaleFactorTime/scaleFactorTime);
 
-events.ts = zeros(1, arrayLength);
+events.ts = zeros(1, arrayLength+1);
 events.activityOn = zeros(1, arrayLength);
 events.activityOff = zeros(1, arrayLength);
 
@@ -44,5 +41,8 @@ for event = 1:l
         end
         events.activityOff(index) = recording.activityOff(event);
     end
+end
+if events.ts(end) == 0
+    events.ts(end) = events.ts(end-1)+scaleFactorTime;
 end
 end
