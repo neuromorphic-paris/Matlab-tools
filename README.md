@@ -26,3 +26,6 @@ add a new field to the recording that displays activity over the whole input fra
 
 #### shannonise
 sometimes it is necessary to convert a sparse event representation into one that is sampled regurlarly. Currently this works well with the activity, this could however be adapted to accumulate events for frames (boohh) etc.
+
+#### merging streams of events
+useful if you have multiple streams of events such as in a grid, all events are sorted by timestamp. 
