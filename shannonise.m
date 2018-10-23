@@ -1,5 +1,4 @@
-function events = shannonise(recording, timeStep)
-timeconst = 50000;
+function events = shannonise(recording, timeconst, timeStep)
 arrayLength = floor((recording.ts(end)-recording.ts(1))/timeStep);
 
 events.activityOn = zeros(1, arrayLength+1);
