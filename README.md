@@ -22,7 +22,7 @@ a simple viewer that accumulates the events for display purposes. Slow. Try to u
 crop recordings in space (x,y) and time (ts).
 
 #### activity
-add a new field to the recording that displays activity over the whole input frame for each event.
+add a new field to the recording that displays activity over the whole input frame for each event. Options are `'exponential'` (default) and `'linear'`
 
 #### shannonise
 sometimes it is necessary to convert a sparse event representation into one that is sampled regurlarly. Currently this works well with the activity, this could however be adapted to accumulate events for frames (boohh) etc.
