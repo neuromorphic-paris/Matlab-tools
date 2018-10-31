@@ -16,16 +16,16 @@ struct with fields:
 supported formats are **.es** ([the eventstream format](https://github.com/neuromorphic-paris/event_stream)) and **.dat**. In case your primary goal is to convert files, have a look at [utilities](https://github.com/neuromorphic-paris/utilities).
 
 #### quick view
-a simple viewer that accumulates the events for display purposes. Slow. Try to use [better tools](https://github.com/neuromorphic-paris/tutorials/wiki/4.-ATIS-event-stream-viewer).
+a simple viewer that accumulates the events for display purposes. Slow and not very pretty. Try to use [better tools](https://github.com/neuromorphic-paris/tutorials/wiki/4.-ATIS-event-stream-viewer).
 
 #### spatial and temporal cropping
 crop recordings in space (x,y) and time (ts).
 
 #### activity
-add a new field to the recording that displays activity over the whole input frame for each event. Options are `'exponential'` (default) and `'linear'`
+add a new field to the recording that displays activity for all events given. By default it will split activity for On and Off events respectively. You may also choose the type of decay as `'exponential'` (default) or `'linear'`
 
 #### shannonise
 sometimes it is necessary to convert a sparse event representation into one that is sampled regurlarly. Currently this works well with the activity, this could however be adapted to accumulate events for frames (boohh) etc.
 
 #### merging streams of events
-useful if you have multiple streams of events such as in a grid, all events are sorted by timestamp. 
+useful if you have multiple streams of events such as in a grid. All events are sorted by timestamp. 
