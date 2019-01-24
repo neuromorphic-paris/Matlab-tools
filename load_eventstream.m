@@ -1,8 +1,7 @@
 function event_data = load_eventstream(filename, mirrorX, mirrorY)
 % td_data = load_eventstream(filename, mirrorX=false, mirrorY=false)
 %
-% loads time differences (but not grey level events) from .es files that have been recorded with version 1 of the ES format.
-% See https://github.com/neuromorphic-paris/event_stream/blob/7ffcca590faa002b48e57f8e75810ceb200888a4/README.md
+% loads DVS events (but not grey level events) from .es files that have been recorded with version 2 of the ES format.
 
 if ~exist('mirrorX','var')
     mirrorX = false;
@@ -14,29 +13,30 @@ end
 f=fopen(filename);
 
 header = fgets(f, 12);
-versions = fread(f, 2);
+versions = fread(f, 3);
 type = fread(f, 1);
 
-if type ~= 1
+width = fread(f,1) + bitshift(fread(f,1), 8);
+height = fread(f,1) + bitshift(fread(f,1), 8);
+disp(['width: ', int2str(width), ', height: ', int2str(height)])
+
+if type ~= 2
     disp 'unsupported version'
     fclose(f);
     return;
 end
 
 data = fread(f, 'uint8');
+fclose(f);
 
-arraySize = round(length(data)/3) + 1; %if all bytes were event bytes and no overflow or reset bytes
-events = zeros(1, arraySize);
+%arraySize = round(length(data)/3) + 1; %if all bytes were event bytes and no overflow or reset bytes
+%events = zeros(1, arraySize);
 index = 1;
-tsmask = bin2dec('00011111');
-xmask = bin2dec('00100000');
-pmask = bin2dec('10000000');
-thresholdmask = bin2dec('01000000');
+pmask = bin2dec('00000010');
+thresholdmask = bin2dec('00000001');
 
 overflow = 0;
 skiploop = 0;
-x = 0;
-y = 0;
 t = 0;
 
 max = length(data);
@@ -46,32 +46,28 @@ for i = 1:max
         continue;
     end
     
-    b = bitshift(data(i), 3, 'uint8');
+    %b = bitshift(data(i), -2, 'uint8');
     
-    if b == 248
-        helperbits = bitshift(data(i), -5);
-        if helperbits == 0 %reset byte
+    if bitand(data(i), 252) == 252
+        if data(i) == 252 %reset byte
             continue;
         else
-            overflow = overflow + helperbits;
+            overflow = overflow + bitand(data(i), 3);
         end
     else
         % skip events that encode grey levels
-        if i < (max -2) && bitand(data(i+2), thresholdmask) ~= thresholdmask
-            t = t + bitand(data(i), tsmask) + overflow * 31;
+        if i < (max - 3) && bitand(data(i), thresholdmask) ~= thresholdmask
+            t = t + bitshift(data(i), -2) + overflow * 63;
             event_data.ts(index) = t;
             overflow = 0;
 
-            x =  bitor(bitshift(data(i), -5), bitshift(data(i+1), 3, 'uint8'));
-            if bitand(data(i+1), xmask) == xmask %account for x[8]
-                x = x + 256;
-            end
+            x =  data(i+1) + bitshift(data(i+2), 8);
             event_data.x(index) = x;
 
-            y = bitor(bitshift(data(i+1), -6), bitshift(data(i+2), 2, 'uint8'));
+            y = data(i+3) + bitshift(data(i+4), 8);
             event_data.y(index) = y;
 
-            if bitand(data(i+2), pmask) == pmask
+            if bitand(data(i), pmask) == pmask
                 p = 1;
             else
                 p = 0;
@@ -80,20 +76,17 @@ for i = 1:max
 
             index = index + 1;
         else
-            t = t + bitand(data(i), tsmask) + overflow * 31;
-            overflow = 0;
+            t = t + bitshift(data(i), -2);
         end
-        skiploop = 2;
+        skiploop = 4;
     end
 end
 
 if mirrorX
-    event_data.x = 303 - event_data.x;
+    event_data.x = (width - 1) - event_data.x;
 end
 if mirrorY
-    event_data.y = 239 - event_data.y;
+    event_data.y = (height - 1) - event_data.y;
 end
-
-fclose(f);
 
 end
