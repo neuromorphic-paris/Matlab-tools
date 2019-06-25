@@ -46,29 +46,30 @@ if type == 2 %ATIS file
                 overflow = overflow + bitand(data(i), 3);
             end
         else
-            % skip events that encode grey levels
-            if i < (max - 3) && bitand(data(i), thresholdmask) ~= thresholdmask
-                t = t + bitshift(data(i), -2) + overflow * 63;
-                event_data.ts(index) = t;
-                overflow = 0;
+            t = t + bitshift(data(i), -2) + overflow * 63;
+            event_data.ts(index) = t;
+            overflow = 0;
+            
+            x =  data(i+1) + bitshift(data(i+2), 8);
+            event_data.x(index) = x;
 
-                x =  data(i+1) + bitshift(data(i+2), 8);
-                event_data.x(index) = x;
+            y = data(i+3) + bitshift(data(i+4), 8);
+            event_data.y(index) = y;
 
-                y = data(i+3) + bitshift(data(i+4), 8);
-                event_data.y(index) = y;
-
-                if bitand(data(i), pmask) == pmask
-                    p = 1;
-                else
-                    p = 0;
-                end
-                event_data.p(index) = p;
-
-                index = index + 1;
+            if bitand(data(i), pmask) == pmask
+                p = 1;
             else
-                t = t + bitshift(data(i), -2);
+                p = 0;
             end
+            event_data.p(index) = p;
+            
+            if i < (max - 3) && bitand(data(i), thresholdmask) ~= thresholdmask
+                event_data.tc(index) = 0;
+            else
+                event_data.tc(index) = 1;
+            end
+            index = index + 1;
+            
             skiploop = 4;
         end
     end
