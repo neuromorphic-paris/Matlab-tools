@@ -31,6 +31,7 @@ if type == 2 %ATIS file
     overflow = 0;
     skiploop = 0;
     t = 0;
+    start_t = 0;
 
     max = length(data);
     for i = 1:max
@@ -65,8 +66,11 @@ if type == 2 %ATIS file
             
             if i < (max - 3) && bitand(data(i), thresholdmask) ~= thresholdmask
                 event_data.tc(index) = 0;
+                start_t = t;
+                event_data.delta_t(index) = 0;
             else
                 event_data.tc(index) = 1;
+                event_data.delta_t(index) = t - start_t;
             end
             index = index + 1;
             
