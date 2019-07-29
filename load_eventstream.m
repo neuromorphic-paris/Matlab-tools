@@ -66,12 +66,14 @@ if type == 2 %ATIS file
             
             if i < (max - 3) && bitand(data(i), thresholdmask) == thresholdmask
                 event_data.tc(index) = 1;
-                if event_data.p(index) == 0
+                if p == 0
                     event_data.delta_t(index) = 0;
                     start_t(x+1,y+1) = t;
-                else
+                elseif p == 1 && start_t(x+1,y+1) ~= 0 % OFF threshold crossing after ON threshold crossing
                     event_data.delta_t(index) = t - start_t(x+1,y+1);
                     start_t(x+1,y+1) = 0;
+                else % we ignore an OFF threshold crossing event after another one
+                    event_data.delta_t(index) = 0;
                 end
             else
                 event_data.tc(index) = 0;
