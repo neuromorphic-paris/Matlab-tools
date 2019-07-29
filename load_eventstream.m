@@ -19,6 +19,7 @@ type = fread(f, 1);
 width = fread(f,1) + bitshift(fread(f,1), 8);
 height = fread(f,1) + bitshift(fread(f,1), 8);
 disp(['width: ', int2str(width), ', height: ', int2str(height)])
+ignore_count = 0;
 
 if type == 2 %ATIS file
     data = fread(f, 'uint8');
@@ -31,7 +32,7 @@ if type == 2 %ATIS file
     overflow = 0;
     skiploop = 0;
     t = 0;
-    start_t = 0;
+    start_t = zeros(width, height);
 
     max = length(data);
     for i = 1:max
@@ -64,13 +65,21 @@ if type == 2 %ATIS file
             end
             event_data.p(index) = p;
             
-            if i < (max - 3) && bitand(data(i), thresholdmask) ~= thresholdmask
-                event_data.tc(index) = 0;
-                start_t = t;
-                event_data.delta_t(index) = 0;
-            else
+            if i < (max - 3) && bitand(data(i), thresholdmask) == thresholdmask
                 event_data.tc(index) = 1;
-                event_data.delta_t(index) = t - start_t;
+                if p == 0
+                    event_data.delta_t(index) = 0;
+                    start_t(x+1,y+1) = t;
+                elseif p == 1 && start_t(x+1,y+1) ~= 0 % OFF threshold crossing after ON threshold crossing
+                    event_data.delta_t(index) = t - start_t(x+1,y+1);
+                    start_t(x+1,y+1) = 0;
+                else % we ignore an OFF threshold crossing event after another one
+                    ignore_count = ignore_count + 1;
+                    event_data.delta_t(index) = 0;
+                end
+            else
+                event_data.tc(index) = 0;
+                event_data.delta_t(index) = 0;
             end
             index = index + 1;
             
@@ -130,6 +139,7 @@ else
     return;
 end
 
+disp(['Ignored ', int2str(ignore_count), ' threshold crossing events.'])
 
 if mirrorX
     event_data.x = (width - 1) - event_data.x;
