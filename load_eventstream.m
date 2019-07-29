@@ -31,7 +31,7 @@ if type == 2 %ATIS file
     overflow = 0;
     skiploop = 0;
     t = 0;
-    start_t = zeros(width, height)';
+    start_t = zeros(width, height);
 
     max = length(data);
     for i = 1:max
